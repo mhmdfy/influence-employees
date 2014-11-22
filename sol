@@ -84,8 +84,6 @@ def remove(index):
     
 
 if __name__ == '__main__':
-  global K
-  global LEAFS
   readFile()
 
   for emp in EMPS:
