@@ -20,6 +20,7 @@ class Employee:
     self.parent = parent
     self.childs = []
     self.leafs = []
+    self.heapLoc = 0
     if self.hasParent():
       self.totVal = value + self.getParent().getTotVal()
       self.getParent().addChild(self.index)
@@ -56,12 +57,12 @@ class priorityQueue:
   def heapifyUp(self, index):
     if index == 1:
       return
-    print 'changing ' + str(self.heap[index]) + ' (' + str(EMPS[self.heap[index]].totVal) + '), > with ' + str(self.heap[index/2]) + ' (' + str(EMPS[self.heap[index/2]].totVal) +')'
     if EMPS[self.heap[index]].totVal > EMPS[self.heap[index/2]].totVal:
-      print 'got in'
       temp = self.heap[index]
       self.heap[index] = self.heap[index/2]
       self.heap[index/2] = temp
+      EMPS[self.heap[index]].heapLoc = index
+      EMPS[self.heap[index/2]].heapLoc = index/2
       self.heapifyUp(index/2)
 
   def heapifyDown(self, index):
@@ -74,18 +75,19 @@ class priorityQueue:
     else:
       highChild = index*2+1
 
-    print 'changing ' + str(self.heap[index]) + ' (' + str(EMPS[self.heap[index]].totVal) + '), < with ' + str(self.heap[highChild]) + ' (' + str(EMPS[self.heap[highChild]].totVal) +')'
     if EMPS[self.heap[index]].totVal < EMPS[self.heap[highChild]].totVal:
-      print 'got in'
       temp = self.heap[index]
       self.heap[index] = self.heap[highChild]
       self.heap[highChild] = temp
+      EMPS[self.heap[index]].heapLoc = index
+      EMPS[self.heap[highChild]].heapLoc = highChild
       self.heapifyDown(highChild)
 
 
   def insert(self, i):
     self.heap.append(i)
     self.size = self.size + 1
+    EMPS[i].heapLoc = self.size
     self.heapifyUp(self.size)
 
   def getMax(self):
@@ -100,10 +102,6 @@ class priorityQueue:
     else:
       EMPS[self.heap[index]].totVal = value
       self.heapifyUp(index)
-
-  def printVals(self):
-      print self.heap
-
 
 def readFile():
   global N
@@ -129,7 +127,8 @@ def addLeaf(index):
     
 def changeLeafs(index):
   for leaf in EMPS[index].leafs:
-    EMPS[leaf].totVal = EMPS[leaf].totVal - EMPS[index].value
+    LEAFS.changeKey(EMPS[leaf].heapLoc, EMPS[leaf].totVal - EMPS[index].value)
+  EMPS[index].value = 0
 
 def changeTot(index):
   i = index
@@ -146,13 +145,11 @@ if __name__ == '__main__':
       addLeaf(emp.index)
       LEAFS.insert(emp.index)
 
-  LEAFS.printVals()
 
   while K > 0:
     maxI, maxVal = LEAFS.getMax()
-    print 'max val = ' + str(maxVal) + ', for index ' + str(maxI)
-    changeTot(maxI)
     LEAFS.changeKey(1, 0)
+    changeTot(maxI)
     TOTAL = TOTAL + maxVal
     K = K - 1
 
