@@ -126,6 +126,8 @@ def addLeaf(index):
     i = EMPS[i].parent
     
 def changeLeafs(index):
+  if EMPS[index].value == 0:
+    return
   for leaf in EMPS[index].leafs:
     LEAFS.changeKey(EMPS[leaf].heapLoc, EMPS[leaf].totVal - EMPS[index].value)
   EMPS[index].value = 0
