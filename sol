@@ -91,7 +91,6 @@ class priorityQueue:
   def getMax(self):
     maxI = self.heap[1]
     maxVal = EMPS[self.heap[1]].totVal
-    self.changeKey(1, 0)
     return maxI, maxVal
 
   def changeKey(self, index, value):
@@ -122,30 +121,21 @@ def readFile():
       EMPS[i] = Employee(i, nums[1]-1, nums[2])
       i = i + 1
 
-def modifyTot(i, val):
-  EMPS[i].totVal = EMPS[i].totVal - val
-  for child in EMPS[i].childs:
-    modifyTot(child, val)
-
-def changeTot(prev, index):
-  oldVal = EMPS[index].totVal
-  EMPS[index].totVal = 0
-  for leaf in EMPS[index].leafs:
-    if child != prev:
-      modifyTot(child, oldVal)
-  if EMPS[index].hasParent():
-    changeTot(index, EMPS[index].parent)
-
-def remove(index):
-  EMPS[index].totVal = 0
-  changeTot(index, EMPS[index].parent)
-    
 def addLeaf(index):
   i = index
   while EMPS[i].hasParent():
     EMPS[i].getParent().addLeaf(index)
     i = EMPS[i].parent
     
+def changeLeafs(index):
+  for leaf in EMPS[index].leafs:
+    EMPS[leaf].totVal = EMPS[leaf].totVal - EMPS[index].value
+
+def changeTot(index):
+  i = index
+  while EMPS[i].hasParent():
+    changeLeafs(EMPS[i].parent)
+    i = EMPS[i].parent
 
 if __name__ == '__main__':
   readFile()
@@ -161,8 +151,9 @@ if __name__ == '__main__':
   while K > 0:
     maxI, maxVal = LEAFS.getMax()
     print 'max val = ' + str(maxVal) + ', for index ' + str(maxI)
+    changeTot(maxI)
+    LEAFS.changeKey(1, 0)
     TOTAL = TOTAL + maxVal
-    remove(maxI)
     K = K - 1
 
   print TOTAL 
